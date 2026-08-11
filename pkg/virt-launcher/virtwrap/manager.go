@@ -156,8 +156,9 @@ var agentDataCommandTTLs = map[string]time.Duration{
 	"guest-network-get-route":      fiveMinutes,
 	"guest-network-get-interfaces": fiveMinutes,
 
-	// 30min
+	// 30min (infrequent / static guest data)
 	"guest-get-memory-blocks": thirtyMinutes,
+	"guest-get-devices":       thirtyMinutes,
 }
 
 type contextStore struct {
