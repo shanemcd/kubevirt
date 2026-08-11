@@ -162,6 +162,13 @@ var _ = Describe("buildVMStatsRequestFromQuery", func() {
 		Expect(req.GuestNetworkGetRoute).To(BeNil())
 		Expect(req.GuestNetworkGetInterfaces).To(BeNil())
 		Expect(req.GuestGetMemoryBlocks).To(BeNil())
+		Expect(req.GuestGetDevices).To(BeNil())
+	})
+
+	It("should enable guestGetDevices", func() {
+		req := buildRequest("?guestGetDevices=true")
+		Expect(req.GuestGetDevices).ToNot(BeNil())
+		Expect(req.GuestGetMemoryBlocks).To(BeNil())
 	})
 
 	It("should ignore params with non-true values", func() {

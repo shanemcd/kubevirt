@@ -25,6 +25,7 @@ service Cmd {
   rpc GetGuestInfo(EmptyRequest) returns (GuestInfoResponse) {}
   rpc GetUsers(EmptyRequest) returns (GuestUserListResponse) {}
   rpc GetFilesystems(EmptyRequest) returns (GuestFilesystemsResponse) {}
+  rpc GetDevices(EmptyRequest) returns (GuestDevicesResponse) {}
   rpc Ping(EmptyRequest) returns (Response) {}
   rpc Exec(ExecRequest) returns (ExecResponse) {}
   rpc GuestPing(GuestPingRequest) returns (GuestPingResponse) {}
@@ -178,6 +179,11 @@ message GuestFilesystemsResponse {
   string guestFilesystemsResponse = 2;
 }
 
+message GuestDevicesResponse {
+  Response response = 1;
+  string guestDevicesResponse = 2;
+}
+
 message ExecResponse {
   Response response = 1;
   int32 exitCode = 2;
@@ -260,6 +266,7 @@ message AgentTimezoneRequest {}
 message AgentNetworkRouteRequest {}
 message AgentNetworkInterfacesRequest {}
 message AgentMemoryBlocksRequest {}
+message AgentDevicesRequest {}
 
 message VMStatsRequest {
   DomainStatsRequest domainStats = 1;
@@ -278,6 +285,7 @@ message VMStatsRequest {
   AgentNetworkRouteRequest guestNetworkGetRoute = 14;
   AgentNetworkInterfacesRequest guestNetworkGetInterfaces = 15;
   AgentMemoryBlocksRequest guestGetMemoryBlocks = 16;
+  AgentDevicesRequest guestGetDevices = 17;
 }
 
 message VMStatsResponse {
@@ -300,4 +308,5 @@ message VMStatsResponse {
   Response guestNetworkGetRoute = 16;
   Response guestNetworkGetInterfaces = 17;
   Response guestGetMemoryBlocks = 18;
+  Response guestGetDevices = 19;
 }

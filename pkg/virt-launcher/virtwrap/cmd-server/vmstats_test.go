@@ -162,6 +162,37 @@ var _ = Describe("GetVMStats", func() {
 			Expect(response.GuestGetTime.Message).To(ContainSubstring("agent not responding"))
 		})
 
+		It("should return guest-get-devices raw JSON when requested", func() {
+			devicesJSON := `{"return":[{"driver-name":"Red Hat VirtIO Ethernet Adapter","driver-version":"100.95.104.26200","driver-date":"2024-07-15","driver-id":"PCI\\VEN_1AF4&DEV_1041","id":"pci\\ven_1af4&dev_1041&subsys_11001af4&rev_01\\3&102b2ad&0&20","address":"0000:01:00.0"}]}`
+			domainManager.EXPECT().GetGuestAgentVersion().Return("5.2")
+			domainManager.EXPECT().GetAgentData("guest-get-devices").Return(devicesJSON, nil)
+
+			request := &cmdv1.VMStatsRequest{
+				GuestGetDevices: &cmdv1.AgentDevicesRequest{},
+			}
+			response, err := server.GetVMStats(context.TODO(), request)
+
+			Expect(err).ToNot(HaveOccurred())
+			Expect(response.Response.Success).To(BeTrue())
+			Expect(response.GuestGetDevices.Success).To(BeTrue())
+			Expect(response.GuestGetDevices.Message).To(Equal(devicesJSON))
+		})
+
+		It("should surface CommandNotFound for guest-get-devices without crashing", func() {
+			domainManager.EXPECT().GetGuestAgentVersion().Return("5.2")
+			domainManager.EXPECT().GetAgentData("guest-get-devices").Return("", fmt.Errorf("CommandNotFound"))
+
+			request := &cmdv1.VMStatsRequest{
+				GuestGetDevices: &cmdv1.AgentDevicesRequest{},
+			}
+			response, err := server.GetVMStats(context.TODO(), request)
+
+			Expect(err).ToNot(HaveOccurred())
+			Expect(response.Response.Success).To(BeFalse())
+			Expect(response.GuestGetDevices.Success).To(BeFalse())
+			Expect(response.GuestGetDevices.Message).To(ContainSubstring("CommandNotFound"))
+		})
+
 		It("should not call GetGuestAgentVersion when no agent data is requested", func() {
 			request := &cmdv1.VMStatsRequest{}
 			response, err := server.GetVMStats(context.TODO(), request)

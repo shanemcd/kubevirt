@@ -191,6 +191,21 @@ func (mr *MockLauncherClientMockRecorder) GetFilesystems() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFilesystems", reflect.TypeOf((*MockLauncherClient)(nil).GetFilesystems))
 }
 
+// GetDevices mocks base method.
+func (m *MockLauncherClient) GetDevices() ([]api.Device, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetDevices")
+	ret0, _ := ret[0].([]api.Device)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetDevices indicates an expected call of GetDevices.
+func (mr *MockLauncherClientMockRecorder) GetDevices() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDevices", reflect.TypeOf((*MockLauncherClient)(nil).GetDevices))
+}
+
 // GetGuestInfo mocks base method.
 func (m *MockLauncherClient) GetGuestInfo() (*v1.VirtualMachineInstanceGuestAgentInfo, error) {
 	m.ctrl.T.Helper()

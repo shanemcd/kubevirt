@@ -156,8 +156,9 @@ var agentDataCommandTTLs = map[string]time.Duration{
 	"guest-network-get-route":      fiveMinutes,
 	"guest-network-get-interfaces": fiveMinutes,
 
-	// 30min
+	// 30min (infrequent / static guest data)
 	"guest-get-memory-blocks": thirtyMinutes,
+	"guest-get-devices":       thirtyMinutes,
 }
 
 type contextStore struct {
@@ -185,6 +186,7 @@ type DomainManager interface {
 	GetGuestInfo() v1.VirtualMachineInstanceGuestAgentInfo
 	GetUsers() []v1.VirtualMachineInstanceGuestOSUser
 	GetFilesystems() []v1.VirtualMachineInstanceFileSystem
+	GetDevices() []api.Device
 	FinalizeVirtualMachineMigration(*v1.VirtualMachineInstance, *cmdv1.VirtualMachineOptions) error
 	HotplugHostDevices(vmi *v1.VirtualMachineInstance) error
 	InterfacesStatus() []api.InterfaceStatus
@@ -2653,6 +2655,14 @@ func (l *LibvirtDomainManager) GetFilesystems() []v1.VirtualMachineInstanceFileS
 	}
 
 	return fsList
+}
+
+// GetDevices returns guest device driver information from guest-get-devices
+func (l *LibvirtDomainManager) GetDevices() []api.Device {
+	if l.agentData == nil {
+		return nil
+	}
+	return l.agentData.GetDevices()
 }
 
 func (l *LibvirtDomainManager) GetGuestAgentVersion() string {

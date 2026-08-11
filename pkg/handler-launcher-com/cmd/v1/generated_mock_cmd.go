@@ -241,6 +241,26 @@ func (mr *MockCmdClientMockRecorder) GetFilesystems(ctx, in any, opts ...any) *g
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFilesystems", reflect.TypeOf((*MockCmdClient)(nil).GetFilesystems), varargs...)
 }
 
+// GetDevices mocks base method.
+func (m *MockCmdClient) GetDevices(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*GuestDevicesResponse, error) {
+	m.ctrl.T.Helper()
+	varargs := []any{ctx, in}
+	for _, a := range opts {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetDevices", varargs...)
+	ret0, _ := ret[0].(*GuestDevicesResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetDevices indicates an expected call of GetDevices.
+func (mr *MockCmdClientMockRecorder) GetDevices(ctx, in any, opts ...any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]any{ctx, in}, opts...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDevices", reflect.TypeOf((*MockCmdClient)(nil).GetDevices), varargs...)
+}
+
 // GetGuestInfo mocks base method.
 func (m *MockCmdClient) GetGuestInfo(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*GuestInfoResponse, error) {
 	m.ctrl.T.Helper()
@@ -933,6 +953,21 @@ func (m *MockCmdServer) GetFilesystems(arg0 context.Context, arg1 *EmptyRequest)
 func (mr *MockCmdServerMockRecorder) GetFilesystems(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFilesystems", reflect.TypeOf((*MockCmdServer)(nil).GetFilesystems), arg0, arg1)
+}
+
+// GetDevices mocks base method.
+func (m *MockCmdServer) GetDevices(arg0 context.Context, arg1 *EmptyRequest) (*GuestDevicesResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetDevices", arg0, arg1)
+	ret0, _ := ret[0].(*GuestDevicesResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetDevices indicates an expected call of GetDevices.
+func (mr *MockCmdServerMockRecorder) GetDevices(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDevices", reflect.TypeOf((*MockCmdServer)(nil).GetDevices), arg0, arg1)
 }
 
 // GetGuestInfo mocks base method.
