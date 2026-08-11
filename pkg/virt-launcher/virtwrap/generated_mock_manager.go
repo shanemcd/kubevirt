@@ -189,6 +189,20 @@ func (mr *MockDomainManagerMockRecorder) GetFilesystems() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFilesystems", reflect.TypeOf((*MockDomainManager)(nil).GetFilesystems))
 }
 
+// GetDevices mocks base method.
+func (m *MockDomainManager) GetDevices() []api.Device {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetDevices")
+	ret0, _ := ret[0].([]api.Device)
+	return ret0
+}
+
+// GetDevices indicates an expected call of GetDevices.
+func (mr *MockDomainManagerMockRecorder) GetDevices() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDevices", reflect.TypeOf((*MockDomainManager)(nil).GetDevices))
+}
+
 // GetGuestAgentVersion mocks base method.
 func (m *MockDomainManager) GetGuestAgentVersion() string {
 	m.ctrl.T.Helper()

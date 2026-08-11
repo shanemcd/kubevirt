@@ -33,6 +33,7 @@ It has these top-level messages:
 	GuestInfoResponse
 	GuestUserListResponse
 	GuestFilesystemsResponse
+	GuestDevicesResponse
 	ExecResponse
 	GuestPingRequest
 	GuestPingResponse
@@ -798,6 +799,30 @@ func (m *GuestFilesystemsResponse) GetResponse() *Response {
 func (m *GuestFilesystemsResponse) GetGuestFilesystemsResponse() string {
 	if m != nil {
 		return m.GuestFilesystemsResponse
+	}
+	return ""
+}
+
+type GuestDevicesResponse struct {
+	Response             *Response `protobuf:"bytes,1,opt,name=response" json:"response,omitempty"`
+	GuestDevicesResponse string    `protobuf:"bytes,2,opt,name=guestDevicesResponse" json:"guestDevicesResponse,omitempty"`
+}
+
+func (m *GuestDevicesResponse) Reset()                    { *m = GuestDevicesResponse{} }
+func (m *GuestDevicesResponse) String() string            { return proto.CompactTextString(m) }
+func (*GuestDevicesResponse) ProtoMessage()               {}
+func (*GuestDevicesResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{22} }
+
+func (m *GuestDevicesResponse) GetResponse() *Response {
+	if m != nil {
+		return m.Response
+	}
+	return nil
+}
+
+func (m *GuestDevicesResponse) GetGuestDevicesResponse() string {
+	if m != nil {
+		return m.GuestDevicesResponse
 	}
 	return ""
 }
@@ -1586,6 +1611,7 @@ func init() {
 	proto.RegisterType((*GuestInfoResponse)(nil), "kubevirt.cmd.v1.GuestInfoResponse")
 	proto.RegisterType((*GuestUserListResponse)(nil), "kubevirt.cmd.v1.GuestUserListResponse")
 	proto.RegisterType((*GuestFilesystemsResponse)(nil), "kubevirt.cmd.v1.GuestFilesystemsResponse")
+	proto.RegisterType((*GuestDevicesResponse)(nil), "kubevirt.cmd.v1.GuestDevicesResponse")
 	proto.RegisterType((*ExecResponse)(nil), "kubevirt.cmd.v1.ExecResponse")
 	proto.RegisterType((*GuestPingRequest)(nil), "kubevirt.cmd.v1.GuestPingRequest")
 	proto.RegisterType((*GuestPingResponse)(nil), "kubevirt.cmd.v1.GuestPingResponse")
@@ -1652,6 +1678,7 @@ type CmdClient interface {
 	GetGuestInfo(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*GuestInfoResponse, error)
 	GetUsers(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*GuestUserListResponse, error)
 	GetFilesystems(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*GuestFilesystemsResponse, error)
+	GetDevices(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*GuestDevicesResponse, error)
 	Ping(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*Response, error)
 	Exec(ctx context.Context, in *ExecRequest, opts ...grpc.CallOption) (*ExecResponse, error)
 	GuestPing(ctx context.Context, in *GuestPingRequest, opts ...grpc.CallOption) (*GuestPingResponse, error)
@@ -1866,6 +1893,15 @@ func (c *cmdClient) GetFilesystems(ctx context.Context, in *EmptyRequest, opts .
 	return out, nil
 }
 
+func (c *cmdClient) GetDevices(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*GuestDevicesResponse, error) {
+	out := new(GuestDevicesResponse)
+	err := grpc.Invoke(ctx, "/kubevirt.cmd.v1.Cmd/GetDevices", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *cmdClient) Ping(ctx context.Context, in *EmptyRequest, opts ...grpc.CallOption) (*Response, error) {
 	out := new(Response)
 	err := grpc.Invoke(ctx, "/kubevirt.cmd.v1.Cmd/Ping", in, out, c.cc, opts...)
@@ -2025,6 +2061,7 @@ type CmdServer interface {
 	GetGuestInfo(context.Context, *EmptyRequest) (*GuestInfoResponse, error)
 	GetUsers(context.Context, *EmptyRequest) (*GuestUserListResponse, error)
 	GetFilesystems(context.Context, *EmptyRequest) (*GuestFilesystemsResponse, error)
+	GetDevices(context.Context, *EmptyRequest) (*GuestDevicesResponse, error)
 	Ping(context.Context, *EmptyRequest) (*Response, error)
 	Exec(context.Context, *ExecRequest) (*ExecResponse, error)
 	GuestPing(context.Context, *GuestPingRequest) (*GuestPingResponse, error)
@@ -2424,6 +2461,24 @@ func _Cmd_GetFilesystems_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Cmd_GetDevices_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(EmptyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CmdServer).GetDevices(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/kubevirt.cmd.v1.Cmd/GetDevices",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CmdServer).GetDevices(ctx, req.(*EmptyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Cmd_Ping_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(EmptyRequest)
 	if err := dec(in); err != nil {
@@ -2781,6 +2836,10 @@ var _Cmd_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetFilesystems",
 			Handler:    _Cmd_GetFilesystems_Handler,
+		},
+		{
+			MethodName: "GetDevices",
+			Handler:    _Cmd_GetDevices_Handler,
 		},
 		{
 			MethodName: "Ping",

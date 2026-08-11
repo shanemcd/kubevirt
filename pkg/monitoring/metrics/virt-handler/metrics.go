@@ -29,11 +29,13 @@ import (
 	"kubevirt.io/kubevirt/pkg/monitoring/metrics/virt-handler/domainstats"
 	"kubevirt.io/kubevirt/pkg/monitoring/metrics/virt-handler/gpuinfo"
 	"kubevirt.io/kubevirt/pkg/monitoring/metrics/virt-handler/migrationdomainstats"
+	virtconfig "kubevirt.io/kubevirt/pkg/virt-config"
 )
 
 func SetupMetrics(
 	nodeName string, maxRequestsInFlight int,
 	vmiInformer cache.SharedIndexInformer, machines []libvirtxml.CapsGuestMachine,
+	clusterConfig *virtconfig.ClusterConfig,
 ) error {
 	if err := workqueue.SetupMetrics(); err != nil {
 		return err
@@ -53,7 +55,11 @@ func SetupMetrics(
 	SetVersionInfo()
 	ReportDeprecatedMachineTypes(machines, nodeName)
 
-	domainstats.SetupDomainStatsCollector(maxRequestsInFlight, vmiInformer)
+	var guestDeviceMetricsEnabled func() bool
+	if clusterConfig != nil {
+		guestDeviceMetricsEnabled = clusterConfig.GuestDeviceMetricsEnabled
+	}
+	domainstats.SetupDomainStatsCollector(maxRequestsInFlight, vmiInformer, guestDeviceMetricsEnabled)
 	gpuinfo.Setup(nodeName)
 
 	if err := migrationdomainstats.SetupMigrationStatsCollector(vmiInformer); err != nil {

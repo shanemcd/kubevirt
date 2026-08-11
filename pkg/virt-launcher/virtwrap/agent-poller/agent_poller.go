@@ -44,6 +44,7 @@ const (
 	GetFilesystem     AgentCommand = "guest-get-fsinfo"
 	GetAgent          AgentCommand = "guest-info"
 	GetFSFreezeStatus AgentCommand = "guest-fsfreeze-status"
+	GetDevices        AgentCommand = "guest-get-devices"
 
 	pollInitialInterval = 10 * time.Second
 
@@ -191,6 +192,15 @@ func (s *AsyncAgentStore) GetFS(limit int) []api.Filesystem {
 	return limitedFilesystems
 }
 
+// GetDevices returns guest device driver info from guest-get-devices
+func (s *AsyncAgentStore) GetDevices() []api.Device {
+	data, ok := s.store.Load(GetDevices)
+	if !ok {
+		return nil
+	}
+	return data.([]api.Device)
+}
+
 // GetUsers return the use list limited to the limit set
 // set limit to -1 to return all users
 func (s *AsyncAgentStore) GetUsers(limit int) []api.User {
@@ -308,6 +318,11 @@ func CreatePoller(
 			{
 				CallTick:      qemuAgentFileInterval,
 				AgentCommands: []AgentCommand{GetFilesystem},
+			},
+			{
+				// Driver info is essentially static; reuse the infrequent version interval.
+				CallTick:      qemuAgentVersionInterval,
+				AgentCommands: []AgentCommand{GetDevices},
 			},
 			{
 				CallTick:      qemuAgentFSFreezeStatusInterval,
@@ -434,6 +449,13 @@ func executeAgentCommands(commands []AgentCommand, agentPoller *AgentPoller) {
 				continue
 			}
 			agentPoller.agentStore.Store(GetFilesystem, filesystems)
+		case GetDevices:
+			devices, err := parseDevices(cmdResult)
+			if err != nil {
+				log.Log.Errorf("Cannot parse guest agent devices %s", err.Error())
+				continue
+			}
+			agentPoller.agentStore.Store(GetDevices, devices)
 		case GetAgent:
 			agent, err := parseAgent(cmdResult)
 			if err != nil {

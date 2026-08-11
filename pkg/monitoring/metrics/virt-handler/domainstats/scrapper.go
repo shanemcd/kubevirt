@@ -105,5 +105,12 @@ func (d DomainstatsScraper) gatherMetrics(socketFile string) (bool, *VirtualMach
 		return false, nil, fmt.Errorf("failed to update filesystem stats from socket %s: %w", socketFile, err)
 	}
 
+	if settings != nil && settings.guestDeviceMetricsEnabled != nil && settings.guestDeviceMetricsEnabled() {
+		vmStats.DeviceStats, err = cli.GetDevices()
+		if err != nil {
+			return false, nil, fmt.Errorf("failed to update guest device stats from socket %s: %w", socketFile, err)
+		}
+	}
+
 	return exists, vmStats, nil
 }

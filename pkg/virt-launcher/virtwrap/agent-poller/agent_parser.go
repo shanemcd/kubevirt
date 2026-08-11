@@ -55,6 +55,21 @@ type Filesystem struct {
 	Disk       []FSDisk `json:"disk,omitempty"`
 }
 
+// deviceIDJSON is the id object from guest-get-devices
+type deviceIDJSON struct {
+	DeviceID int    `json:"device-id"`
+	VendorID int    `json:"vendor-id"`
+	Type     string `json:"type"`
+}
+
+// deviceJSON is one entry from guest-get-devices
+type deviceJSON struct {
+	DriverDate    int64        `json:"driver-date"`
+	DriverName    string       `json:"driver-name"`
+	DriverVersion string       `json:"driver-version"`
+	ID            deviceIDJSON `json:"id"`
+}
+
 // AgentInfo from the guest VM serves the purpose
 // of checking the GA presence and version compatibility
 type AgentInfo struct {
@@ -110,6 +125,33 @@ func parseFSDisks(fsDisks []FSDisk) []api.FSDisk {
 	}
 
 	return disks
+}
+
+// parseDevices from the agent guest-get-devices response
+func parseDevices(agentReply string) ([]api.Device, error) {
+	result := []deviceJSON{}
+	response := stripAgentResponse(agentReply)
+
+	err := json.Unmarshal([]byte(response), &result)
+	if err != nil {
+		return nil, err
+	}
+
+	converted := make([]api.Device, 0, len(result))
+	for _, d := range result {
+		converted = append(converted, api.Device{
+			DriverName:    d.DriverName,
+			DriverVersion: d.DriverVersion,
+			DriverDate:    d.DriverDate,
+			ID: api.DeviceID{
+				DeviceID: d.ID.DeviceID,
+				VendorID: d.ID.VendorID,
+				Type:     d.ID.Type,
+			},
+		})
+	}
+
+	return converted, nil
 }
 
 // parseAgent gets the agent version from response
