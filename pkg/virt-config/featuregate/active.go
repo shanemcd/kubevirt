@@ -283,6 +283,13 @@ const (
 	// PortRangesSpec enables the portRanges field, initially only on masquerade interfaces,
 	// allowing compact specification of contiguous port intervals to forward to the VM guest.
 	PortRangesSpec = "PortRangesSpec"
+
+	// Owner: sig-observability / VEP #385
+	// Alpha: v1.10.0
+	//
+	// GuestDeviceMetrics enables collecting guest-get-devices from the QEMU guest agent
+	// and exposing kubevirt_vmi_guest_device_driver_date_seconds via the domainstats scraper.
+	GuestDeviceMetrics = "GuestDeviceMetrics"
 )
 
 func init() {
@@ -332,4 +339,5 @@ func init() {
 	RegisterFeatureGate(FeatureGate{Name: MigrationDowntimeTuning, State: Alpha})
 	RegisterFeatureGate(FeatureGate{Name: CrossArchitectureVirtualization, State: Alpha})
 	RegisterFeatureGate(FeatureGate{Name: PortRangesSpec, State: Alpha})
+	RegisterFeatureGate(FeatureGate{Name: GuestDeviceMetrics, State: Alpha})
 }

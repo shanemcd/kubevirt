@@ -282,6 +282,27 @@ var _ = Describe("Virt remote commands", func() {
 			Expect(fetchedList.Items).To(Equal(fsList), "fetched list should be the same")
 		})
 
+		It("should return guest devices list", func() {
+			devices := []api.Device{
+				{
+					DriverName:    "VirtIO Balloon Driver",
+					DriverVersion: "100.100.104.26600",
+					DriverDate:    1729468800000000000,
+					ID: api.DeviceID{
+						DeviceID: 4165,
+						VendorID: 6900,
+						Type:     "pci",
+					},
+				},
+			}
+
+			domainManager.EXPECT().GetDevices().Return(devices)
+
+			fetched, err := client.GetDevices()
+			Expect(err).ToNot(HaveOccurred())
+			Expect(fetched).To(Equal(devices))
+		})
+
 		It("should finalize VM migration", func() {
 			vmi := v1.NewVMIReferenceFromName("testvmi")
 			domainManager.EXPECT().FinalizeVirtualMachineMigration(vmi, &cmdv1.VirtualMachineOptions{}).Return(nil)

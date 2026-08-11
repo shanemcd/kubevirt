@@ -195,6 +195,21 @@ type Filesystem struct {
 	Disk       []FSDisk
 }
 
+// DeviceID identifies a PCI (or similar) device reported by guest-get-devices.
+type DeviceID struct {
+	DeviceID int
+	VendorID int
+	Type     string
+}
+
+// Device is guest device driver information from the QEMU guest agent.
+type Device struct {
+	DriverName    string
+	DriverVersion string
+	DriverDate    int64
+	ID            DeviceID
+}
+
 type User struct {
 	Name      string
 	Domain    string

@@ -115,6 +115,7 @@ type LauncherClient interface {
 	GetGuestInfo() (*v1.VirtualMachineInstanceGuestAgentInfo, error)
 	GetUsers() (v1.VirtualMachineInstanceGuestOSUserList, error)
 	GetFilesystems() (v1.VirtualMachineInstanceFileSystemList, error)
+	GetDevices() ([]api.Device, error)
 	Exec(string, string, []string, int32) (int, string, error)
 	Ping() error
 	GuestPing(string, int32) error
@@ -701,6 +702,34 @@ func (c *VirtLauncherClient) GetFilesystems() (v1.VirtualMachineInstanceFileSyst
 	}
 
 	return filesystemList, nil
+}
+
+// GetDevices returns guest device driver information from guest-get-devices
+func (c *VirtLauncherClient) GetDevices() ([]api.Device, error) {
+	var devices []api.Device
+
+	request := &cmdv1.EmptyRequest{}
+	ctx, cancel := context.WithTimeout(context.Background(), shortTimeout)
+	defer cancel()
+
+	devicesResponse, err := c.v1client.GetDevices(ctx, request)
+	var response *cmdv1.Response
+	if devicesResponse != nil {
+		response = devicesResponse.Response
+	}
+
+	if err = handleError(err, "GetDevices", response); err != nil || devicesResponse == nil {
+		return nil, err
+	}
+
+	if devicesResponse.GetGuestDevicesResponse() != "" {
+		if err := json.Unmarshal([]byte(devicesResponse.GetGuestDevicesResponse()), &devices); err != nil {
+			log.Log.Reason(err).Error("error unmarshalling guest devices list response")
+			return nil, err
+		}
+	}
+
+	return devices, nil
 }
 
 // Exec the command with args on the guest and return the resulting status code, stdOut and error

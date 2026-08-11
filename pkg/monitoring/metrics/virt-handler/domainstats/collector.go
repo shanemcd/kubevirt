@@ -42,6 +42,7 @@ var (
 		networkMetrics{},
 		cpuAffinityMetrics{},
 		filesystemMetrics{},
+		deviceMetrics{},
 	}
 
 	Collector = operatormetrics.Collector{
@@ -58,14 +59,16 @@ type resourceMetrics interface {
 }
 
 type collectorSettings struct {
-	maxRequestsInFlight int
-	vmiInformer         cache.SharedIndexInformer
+	maxRequestsInFlight        int
+	vmiInformer                cache.SharedIndexInformer
+	guestDeviceMetricsEnabled  func() bool
 }
 
-func SetupDomainStatsCollector(maxRequestsInFlight int, vmiInformer cache.SharedIndexInformer) {
+func SetupDomainStatsCollector(maxRequestsInFlight int, vmiInformer cache.SharedIndexInformer, guestDeviceMetricsEnabled func() bool) {
 	settings = &collectorSettings{
-		maxRequestsInFlight: maxRequestsInFlight,
-		vmiInformer:         vmiInformer,
+		maxRequestsInFlight:       maxRequestsInFlight,
+		vmiInformer:               vmiInformer,
+		guestDeviceMetricsEnabled: guestDeviceMetricsEnabled,
 	}
 }
 
