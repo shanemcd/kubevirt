@@ -442,6 +442,15 @@ type Memory struct {
 	// and its characteristics.
 	// +optional
 	ReservedOverhead *ReservedOverhead `json:"reservedOverhead,omitempty"`
+	// Tier requests a host memory tier placement for the VM's guest RAM
+	// (HPSTRAT-40 host-transparent tiering). Legal values: "DRAM-only"
+	// (opt out of slower tiers), "CXL-only" (cold-tier placement), and
+	// "tiered" (DRAM with spillover to slower tiers). Unset means no
+	// preference. Requires the memorytier DRA driver on the target node;
+	// the virt-controller translates the tier into a ResourceClaim.
+	// +kubebuilder:validation:Enum=DRAM-only;CXL-only;tiered
+	// +optional
+	Tier string `json:"tier,omitempty"`
 }
 
 type MemoryStatus struct {

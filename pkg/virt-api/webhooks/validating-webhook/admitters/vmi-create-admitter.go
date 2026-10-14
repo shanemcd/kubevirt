@@ -181,6 +181,7 @@ func ValidateVirtualMachineInstanceSpec(field *k8sfield.Path, spec *v1.VirtualMa
 	causes = append(causes, validateMemoryRequestsNegativeOrNull(field, spec)...)
 	causes = append(causes, validateMemoryLimitsNegativeOrNull(field, spec)...)
 	causes = append(causes, validateHugepagesMemoryRequests(field, spec)...)
+	causes = append(causes, validateMemoryTier(field, spec)...)
 	causes = append(causes, validateGuestMemoryLimit(field, spec, config)...)
 	causes = append(causes, validateEmulatedMachine(field, spec, config)...)
 	causes = append(causes, validateFirmwareACPI(field.Child("acpi"), spec)...)
@@ -1095,6 +1096,48 @@ func validateHugepagesMemoryRequests(field *k8sfield.Path, spec *v1.VirtualMachi
 		})
 	}
 
+	return causes
+}
+
+// validateMemoryTier rejects tier placements that conflict with other
+// memory-placement mechanisms (HPSTRAT-40 host-transparent tiering).
+func validateMemoryTier(field *k8sfield.Path, spec *v1.VirtualMachineInstanceSpec) []metav1.StatusCause {
+	var causes []metav1.StatusCause
+	mem := spec.Domain.Memory
+	if mem == nil || mem.Tier == "" {
+		return causes
+	}
+	switch mem.Tier {
+	case "DRAM-only", "CXL-only", "tiered":
+	default:
+		causes = append(causes, metav1.StatusCause{
+			Type:    metav1.CauseTypeFieldValueInvalid,
+			Message: "memory tier must be one of: DRAM-only, CXL-only, tiered",
+			Field:   field.Child("domain", "memory", "tier").String(),
+		})
+		return causes
+	}
+	if mem.Hugepages != nil {
+		causes = append(causes, metav1.StatusCause{
+			Type:    metav1.CauseTypeFieldValueNotSupported,
+			Message: "memory tier and hugepages are mutually exclusive (both constrain guest memory placement)",
+			Field:   field.Child("domain", "memory", "tier").String(),
+		})
+	}
+	if spec.Domain.CPU != nil && spec.Domain.CPU.DedicatedCPUPlacement {
+		causes = append(causes, metav1.StatusCause{
+			Type:    metav1.CauseTypeFieldValueNotSupported,
+			Message: "memory tier and dedicated CPU placement are mutually exclusive (the topology manager owns placement for pinned VMs)",
+			Field:   field.Child("domain", "memory", "tier").String(),
+		})
+	}
+	if spec.Domain.CPU != nil && spec.Domain.CPU.NUMA != nil {
+		causes = append(causes, metav1.StatusCause{
+			Type:    metav1.CauseTypeFieldValueNotSupported,
+			Message: "memory tier and guest NUMA topology are mutually exclusive (guest NUMA owns memory placement)",
+			Field:   field.Child("domain", "memory", "tier").String(),
+		})
+	}
 	return causes
 }
 
