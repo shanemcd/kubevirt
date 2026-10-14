@@ -1914,7 +1914,7 @@ var tierClasses = map[string]string{
 
 // ensureMemoryTierClaim translates domain.memory.tier into a
 // ResourceClaimTemplate plus a VMI spec.resourceClaims reference (the
-// HPSTRAT-40 §3b translation). The claim's capacity carries the VM's guest
+// tier-to-claim translation). The claim's capacity carries the VM's guest
 // RAM: the tier claim REPLACES the pod's memory request as the scheduling
 // signal for tiered VMs. The template is VM-owned; the per-pod claim is
 // materialized by Kubernetes from the template reference.
