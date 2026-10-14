@@ -20,8 +20,6 @@
 package vm
 
 import (
-	resourcev1 "k8s.io/api/resource/v1"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"context"
 	"encoding/json"
 	"errors"
@@ -33,6 +31,9 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	resourcev1 "k8s.io/api/resource/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 
 	"kubevirt.io/kubevirt/pkg/instancetype/revision"
 	"kubevirt.io/kubevirt/pkg/libvmi"

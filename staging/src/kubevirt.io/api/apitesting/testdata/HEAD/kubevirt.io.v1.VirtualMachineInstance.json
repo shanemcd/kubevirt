@@ -85,7 +85,8 @@
         "reservedOverhead": {
           "addedOverhead": "0",
           "memLock": "memLockValue"
-        }
+        },
+        "tier": "tierValue"
       },
       "machine": {
         "type": "typeValue"

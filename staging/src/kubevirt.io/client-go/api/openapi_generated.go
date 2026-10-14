@@ -24240,6 +24240,13 @@ func schema_kubevirtio_api_core_v1_Memory(ref common.ReferenceCallback) common.O
 							Ref:         ref(corev1.ReservedOverhead{}.OpenAPIModelName()),
 						},
 					},
+					"tier": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Tier requests a host memory tier placement for the VM's guest RAM (HPSTRAT-40 host-transparent tiering). Legal values: \"DRAM-only\" (opt out of slower tiers), \"CXL-only\" (cold-tier placement), and \"tiered\" (DRAM with spillover to slower tiers). Unset means no preference. Requires the memorytier DRA driver on the target node; the virt-controller translates the tier into a ResourceClaim.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 				},
 			},
 		},

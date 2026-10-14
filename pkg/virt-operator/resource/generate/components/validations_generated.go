@@ -8821,6 +8821,19 @@ var CRDsValidation map[string]string = map[string]string{
                               - Required
                               type: string
                           type: object
+                        tier:
+                          description: |-
+                            Tier requests a host memory tier placement for the VM's guest RAM
+                            (HPSTRAT-40 host-transparent tiering). Legal values: "DRAM-only"
+                            (opt out of slower tiers), "CXL-only" (cold-tier placement), and
+                            "tiered" (DRAM with spillover to slower tiers). Unset means no
+                            preference. Requires the memorytier DRA driver on the target node;
+                            the virt-controller translates the tier into a ResourceClaim.
+                          enum:
+                          - DRAM-only
+                          - CXL-only
+                          - tiered
+                          type: string
                       type: object
                     rebootPolicy:
                       description: |-
@@ -15083,6 +15096,19 @@ var CRDsValidation map[string]string = map[string]string{
                       - Required
                       type: string
                   type: object
+                tier:
+                  description: |-
+                    Tier requests a host memory tier placement for the VM's guest RAM
+                    (HPSTRAT-40 host-transparent tiering). Legal values: "DRAM-only"
+                    (opt out of slower tiers), "CXL-only" (cold-tier placement), and
+                    "tiered" (DRAM with spillover to slower tiers). Unset means no
+                    preference. Requires the memorytier DRA driver on the target node;
+                    the virt-controller translates the tier into a ResourceClaim.
+                  enum:
+                  - DRAM-only
+                  - CXL-only
+                  - tiered
+                  type: string
               type: object
             rebootPolicy:
               description: |-
@@ -19299,6 +19325,19 @@ var CRDsValidation map[string]string = map[string]string{
                       - Required
                       type: string
                   type: object
+                tier:
+                  description: |-
+                    Tier requests a host memory tier placement for the VM's guest RAM
+                    (HPSTRAT-40 host-transparent tiering). Legal values: "DRAM-only"
+                    (opt out of slower tiers), "CXL-only" (cold-tier placement), and
+                    "tiered" (DRAM with spillover to slower tiers). Unset means no
+                    preference. Requires the memorytier DRA driver on the target node;
+                    the virt-controller translates the tier into a ResourceClaim.
+                  enum:
+                  - DRAM-only
+                  - CXL-only
+                  - tiered
+                  type: string
               type: object
             rebootPolicy:
               description: |-
@@ -21907,6 +21946,19 @@ var CRDsValidation map[string]string = map[string]string{
                               - Required
                               type: string
                           type: object
+                        tier:
+                          description: |-
+                            Tier requests a host memory tier placement for the VM's guest RAM
+                            (HPSTRAT-40 host-transparent tiering). Legal values: "DRAM-only"
+                            (opt out of slower tiers), "CXL-only" (cold-tier placement), and
+                            "tiered" (DRAM with spillover to slower tiers). Unset means no
+                            preference. Requires the memorytier DRA driver on the target node;
+                            the virt-controller translates the tier into a ResourceClaim.
+                          enum:
+                          - DRAM-only
+                          - CXL-only
+                          - tiered
+                          type: string
                       type: object
                     rebootPolicy:
                       description: |-
@@ -27105,6 +27157,19 @@ var CRDsValidation map[string]string = map[string]string{
                                       - Required
                                       type: string
                                   type: object
+                                tier:
+                                  description: |-
+                                    Tier requests a host memory tier placement for the VM's guest RAM
+                                    (HPSTRAT-40 host-transparent tiering). Legal values: "DRAM-only"
+                                    (opt out of slower tiers), "CXL-only" (cold-tier placement), and
+                                    "tiered" (DRAM with spillover to slower tiers). Unset means no
+                                    preference. Requires the memorytier DRA driver on the target node;
+                                    the virt-controller translates the tier into a ResourceClaim.
+                                  enum:
+                                  - DRAM-only
+                                  - CXL-only
+                                  - tiered
+                                  type: string
                               type: object
                             rebootPolicy:
                               description: |-
@@ -32793,6 +32858,19 @@ var CRDsValidation map[string]string = map[string]string{
                                           - Required
                                           type: string
                                       type: object
+                                    tier:
+                                      description: |-
+                                        Tier requests a host memory tier placement for the VM's guest RAM
+                                        (HPSTRAT-40 host-transparent tiering). Legal values: "DRAM-only"
+                                        (opt out of slower tiers), "CXL-only" (cold-tier placement), and
+                                        "tiered" (DRAM with spillover to slower tiers). Unset means no
+                                        preference. Requires the memorytier DRA driver on the target node;
+                                        the virt-controller translates the tier into a ResourceClaim.
+                                      enum:
+                                      - DRAM-only
+                                      - CXL-only
+                                      - tiered
+                                      type: string
                                   type: object
                                 rebootPolicy:
                                   description: |-

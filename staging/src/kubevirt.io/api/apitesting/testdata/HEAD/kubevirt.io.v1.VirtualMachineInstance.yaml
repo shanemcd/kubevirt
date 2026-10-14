@@ -442,6 +442,7 @@ spec:
       reservedOverhead:
         addedOverhead: "0"
         memLock: memLockValue
+      tier: tierValue
     rebootPolicy: rebootPolicyValue
     resources:
       limits:
