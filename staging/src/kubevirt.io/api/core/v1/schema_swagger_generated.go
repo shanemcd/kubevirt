@@ -214,7 +214,7 @@ func (Memory) SwaggerDoc() map[string]string {
 		"guest":            "Guest allows to specifying the amount of memory which is visible inside the Guest OS.\nThe Guest must lie between Requests and Limits from the resources section.\nDefaults to the requested memory in the resources section if not specified.\n+ optional",
 		"maxGuest":         "MaxGuest allows to specify the maximum amount of memory which is visible inside the Guest OS.\nThe delta between MaxGuest and Guest is the amount of memory that can be hot(un)plugged.",
 		"reservedOverhead": "ReservedOverhead configures the memory overhead applied to a VM\nand its characteristics.\n+optional",
-		"tier":             "Tier requests a host memory tier placement for the VM's guest RAM\n(HPSTRAT-40 host-transparent tiering). Legal values: \"DRAM-only\"\n(opt out of slower tiers), \"CXL-only\" (cold-tier placement), and\n\"tiered\" (DRAM with spillover to slower tiers). Unset means no\npreference. Requires the memorytier DRA driver on the target node;\nthe virt-controller translates the tier into a ResourceClaim.\n+kubebuilder:validation:Enum=DRAM-only;CXL-only;tiered\n+optional",
+		"tier":             "Tier requests a host memory tier placement for the VM's guest RAM\n(host-transparent memory tiering). Legal values: \"DRAM-only\"\n(opt out of slower tiers), \"CXL-only\" (cold-tier placement), and\n\"tiered\" (DRAM with spillover to slower tiers). Unset means no\npreference. Requires the memorytier DRA driver on the target node;\nthe virt-controller translates the tier into a ResourceClaim.\n+kubebuilder:validation:Enum=DRAM-only;CXL-only;tiered\n+optional",
 	}
 }
 

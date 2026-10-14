@@ -1100,7 +1100,7 @@ func validateHugepagesMemoryRequests(field *k8sfield.Path, spec *v1.VirtualMachi
 }
 
 // validateMemoryTier rejects tier placements that conflict with other
-// memory-placement mechanisms (HPSTRAT-40 host-transparent tiering).
+// memory-placement mechanisms (host-transparent memory tiering).
 func validateMemoryTier(field *k8sfield.Path, spec *v1.VirtualMachineInstanceSpec) []metav1.StatusCause {
 	var causes []metav1.StatusCause
 	mem := spec.Domain.Memory
