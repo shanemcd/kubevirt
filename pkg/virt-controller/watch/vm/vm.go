@@ -20,6 +20,8 @@
 package vm
 
 import (
+	resourcev1 "k8s.io/api/resource/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"context"
 	"encoding/json"
 	"errors"
@@ -1353,6 +1355,12 @@ func (c *Controller) startVMI(vm *virtv1.VirtualMachine) (*virtv1.VirtualMachine
 		return vm, fmt.Errorf("failed create validation: %v", validateErr)
 	}
 
+	if err := c.ensureMemoryTierClaim(vm, vmi); err != nil {
+		log.Log.Object(vm).Reason(err).Error("Failed to ensure the memory-tier claim template")
+		c.recorder.Eventf(vm, k8score.EventTypeWarning, common.FailedCreateVirtualMachineReason, "Error ensuring memory tier claim: %v", err)
+		return vm, err
+	}
+
 	c.expectations.ExpectCreations(vmKey, 1)
 	vmi, err = c.clientset.VirtualMachineInstance(vm.ObjectMeta.Namespace).Create(context.Background(), vmi, metav1.CreateOptions{})
 	if err != nil {
@@ -1885,6 +1893,90 @@ func (c *Controller) createVMRevision(vm *virtv1.VirtualMachine) (string, error)
 	}
 
 	return cr.Name, nil
+}
+
+// memoryTierClaimRef is the name used for the tier's pod resourceClaim.
+const memoryTierClaimRef = "memory-tier"
+
+// tierClasses maps the VM API tier vocabulary to the driver's DeviceClasses.
+var tierClasses = map[string]string{
+	"DRAM-only": "dram-tier",
+	"CXL-only":  "cxl-tier",
+}
+
+// ensureMemoryTierClaim translates domain.memory.tier into a
+// ResourceClaimTemplate plus a VMI spec.resourceClaims reference (the
+// HPSTRAT-40 §3b translation). The claim's capacity carries the VM's guest
+// RAM: the tier claim REPLACES the pod's memory request as the scheduling
+// signal for tiered VMs. The template is VM-owned; the per-pod claim is
+// materialized by Kubernetes from the template reference.
+func (c *Controller) ensureMemoryTierClaim(vm *virtv1.VirtualMachine, vmi *virtv1.VirtualMachineInstance) error {
+	if vmi.Spec.Domain.Memory == nil || vmi.Spec.Domain.Memory.Tier == "" {
+		return nil
+	}
+	tier := vmi.Spec.Domain.Memory.Tier
+	class, ok := tierClasses[tier]
+	if !ok {
+		return fmt.Errorf("unsupported memory tier %q (no DeviceClass mapping)", tier)
+	}
+
+	// Guest RAM: Memory.Guest if set, else the resources request.
+	var mem resource.Quantity
+	if vmi.Spec.Domain.Memory.Guest != nil && !vmi.Spec.Domain.Memory.Guest.IsZero() {
+		mem = vmi.Spec.Domain.Memory.Guest.DeepCopy()
+	} else if requested, ok := vmi.Spec.Domain.Resources.Requests[k8score.ResourceMemory]; ok {
+		mem = requested.DeepCopy()
+	} else {
+		return fmt.Errorf("memory tier %q requires guest memory (domain.memory.guest or resources.requests.memory)", tier)
+	}
+
+	tmplName := fmt.Sprintf("%s-memory-tier", vm.Name)
+	desired := &resourcev1.ResourceClaimTemplate{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:            tmplName,
+			Namespace:       vm.Namespace,
+			OwnerReferences: []metav1.OwnerReference{*metav1.NewControllerRef(vm, virtv1.VirtualMachineGroupVersionKind)},
+		},
+		Spec: resourcev1.ResourceClaimTemplateSpec{
+			Spec: resourcev1.ResourceClaimSpec{
+				Devices: resourcev1.DeviceClaim{
+					Requests: []resourcev1.DeviceRequest{{
+						Name: "mem",
+						Exactly: &resourcev1.ExactDeviceRequest{
+							DeviceClassName: class,
+							AllocationMode:  resourcev1.DeviceAllocationModeAll,
+							Capacity: &resourcev1.CapacityRequirements{
+								Requests: map[resourcev1.QualifiedName]resource.Quantity{
+									"memorytier.openshift.io/memory": mem,
+								},
+							},
+						},
+					}},
+				},
+			},
+		},
+	}
+
+	existing, err := c.clientset.ResourceV1().ResourceClaimTemplates(vm.Namespace).Get(context.Background(), tmplName, metav1.GetOptions{})
+	if err != nil {
+		if !apierrors.IsNotFound(err) {
+			return fmt.Errorf("get memory tier claim template: %w", err)
+		}
+		if _, err := c.clientset.ResourceV1().ResourceClaimTemplates(vm.Namespace).Create(context.Background(), desired, metav1.CreateOptions{}); err != nil && !apierrors.IsAlreadyExists(err) {
+			return fmt.Errorf("create memory tier claim template: %w", err)
+		}
+	} else if !equality.Semantic.DeepEqual(existing.Spec, desired.Spec) {
+		existing.Spec = desired.Spec
+		if _, err := c.clientset.ResourceV1().ResourceClaimTemplates(vm.Namespace).Update(context.Background(), existing, metav1.UpdateOptions{}); err != nil {
+			return fmt.Errorf("update memory tier claim template: %w", err)
+		}
+	}
+
+	vmi.Spec.ResourceClaims = append(vmi.Spec.ResourceClaims, virtv1.VirtualMachineInstanceResourceClaim{
+		Name:                      memoryTierClaimRef,
+		ResourceClaimTemplateName: &tmplName,
+	})
+	return nil
 }
 
 // SetupVMIfromVM creates a VirtualMachineInstance object from one VirtualMachine object.
