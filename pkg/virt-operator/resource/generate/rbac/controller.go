@@ -601,11 +601,15 @@ func newControllerClusterRole() *rbacv1.ClusterRole {
 				Resources: []string{
 					"resourceslices",
 					"resourceclaims",
+					"resourceclaimtemplates",
 				},
 				Verbs: []string{
 					"list",
 					"watch",
 					"get",
+					"create",
+					"update",
+					"patch",
 				},
 			},
 		},
