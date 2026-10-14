@@ -16628,6 +16628,10 @@
      "reservedOverhead": {
       "description": "ReservedOverhead configures the memory overhead applied to a VM and its characteristics.",
       "$ref": "#/definitions/v1.ReservedOverhead"
+     },
+     "tier": {
+      "description": "Tier requests a host memory tier placement for the VM's guest RAM (HPSTRAT-40 host-transparent tiering). Legal values: \"DRAM-only\" (opt out of slower tiers), \"CXL-only\" (cold-tier placement), and \"tiered\" (DRAM with spillover to slower tiers). Unset means no preference. Requires the memorytier DRA driver on the target node; the virt-controller translates the tier into a ResourceClaim.",
+      "type": "string"
      }
     }
    },
