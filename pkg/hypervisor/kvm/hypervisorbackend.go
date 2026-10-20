@@ -154,7 +154,7 @@ func (k *KvmHypervisorBackend) GetMemoryOverhead(vmi *v1.VirtualMachineInstance,
 	// allocation. Add headroom so the launcher pod's memory limit does not
 	// OOMKill the preallocated domain.
 	if vmitrait.RequiresLockingMemory(vmi) {
-		overhead.Add(resource.MustParse("256Mi"))
+		overhead.Add(resource.MustParse("512Mi"))
 	}
 
 	// Having a TPM device will spawn a swtpm process
