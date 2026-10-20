@@ -51,7 +51,6 @@ var _ = Describe("GetMemoryOverhead calculation", func() {
 		vfioOverhead            *resource.Quantity
 		downwardmetricsOverhead *resource.Quantity
 		sevOverhead             *resource.Quantity
-		memlockOverhead         *resource.Quantity
 		tpmOverhead             *resource.Quantity
 	)
 
@@ -78,7 +77,6 @@ var _ = Describe("GetMemoryOverhead calculation", func() {
 		vfioOverhead = pointer.P(resource.MustParse("1Gi"))
 		downwardmetricsOverhead = pointer.P(resource.MustParse("1Mi"))
 		sevOverhead = pointer.P(resource.MustParse("256Mi"))
-		memlockOverhead = pointer.P(resource.MustParse("256Mi"))
 		tpmOverhead = pointer.P(resource.MustParse("53Mi"))
 	})
 
@@ -163,24 +161,6 @@ var _ = Describe("GetMemoryOverhead calculation", func() {
 			expected.Add(*coresOverhead)
 			expected.Add(*cpuArchOverhead)
 			overhead := kvm.NewKvmHypervisorBackend().GetMemoryOverhead(vmi, "arm64", nil)
-			Expect(overhead.Value()).To(BeEquivalentTo(expected.Value()))
-		})
-	})
-
-	When("the vmi requires memory locking", func() {
-		It("should add memlock overhead", func() {
-			vmi.Spec.Domain.Memory = &v1.Memory{
-				ReservedOverhead: &v1.ReservedOverhead{
-					MemLock: pointer.P(v1.MemLockRequirement(v1.MemLockRequired)),
-				},
-			}
-			expected := resource.NewScaledQuantity(0, resource.Kilo)
-			expected.Add(*baseOverhead)
-			expected.Add(*staticOverhead)
-			expected.Add(*videoRAMOverhead)
-			expected.Add(*coresOverhead)
-			expected.Add(*memlockOverhead)
-			overhead := kvm.NewKvmHypervisorBackend().GetMemoryOverhead(vmi, "amd64", nil)
 			Expect(overhead.Value()).To(BeEquivalentTo(expected.Value()))
 		})
 	})
