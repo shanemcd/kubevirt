@@ -78,7 +78,7 @@ var _ = Describe("GetMemoryOverhead calculation", func() {
 		vfioOverhead = pointer.P(resource.MustParse("1Gi"))
 		downwardmetricsOverhead = pointer.P(resource.MustParse("1Mi"))
 		sevOverhead = pointer.P(resource.MustParse("256Mi"))
-		memlockOverhead = pointer.P(resource.MustParse("1Gi"))
+		memlockOverhead = pointer.P(resource.MustParse("512Mi"))
 		tpmOverhead = pointer.P(resource.MustParse("53Mi"))
 	})
 
