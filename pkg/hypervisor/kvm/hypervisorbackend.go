@@ -152,9 +152,11 @@ func (k *KvmHypervisorBackend) GetMemoryOverhead(vmi *v1.VirtualMachineInstance,
 	// and QEMU metadata locked in host memory: the full size is resident and
 	// charged to the virt-launcher cgroup from domain start, with no lazy
 	// allocation. Add headroom so the launcher pod's memory limit does not
-	// OOMKill the preallocated domain.
+	// OOMKill the preallocated domain. Measured on a 1Gi guest: resident
+	// ~2.0GiB (locked backend + containerDisk tmpfs + QEMU metadata), so the
+	// overhead must cover ~1GiB on top of the base overheads.
 	if vmitrait.RequiresLockingMemory(vmi) {
-		overhead.Add(resource.MustParse("512Mi"))
+		overhead.Add(resource.MustParse("1Gi"))
 	}
 
 	// Having a TPM device will spawn a swtpm process
