@@ -74,16 +74,9 @@ func (k *KvmVirtRuntime) AdjustResources(vmi *v1.VirtualMachineInstance, config 
 	if vmi.IsRunning() && !isMigrationTargetAwaitingDomain {
 		targetProcess, err = GetQEMUProcess(isolationResult)
 		if err != nil {
-			// The VMI status can be Running before the domain process exists
-			// (the phase is set as soon as the launcher pod is ready, and stays
-			// Running across crash-loop restarts). Fall back to adjusting the
-			// virtqemud process, which propagates the limit to QEMU via
-			// fork/exec, so the yet-to-be-spawned QEMU inherits it.
-			log.Log.V(3).Object(vmi).Reason(err).Info("no QEMU process found yet, adjusting virtqemud instead")
-			targetProcess = nil
+			return err
 		}
-	}
-	if targetProcess == nil {
+	} else {
 		processes, err := ListProcesses()
 		if err != nil {
 			return fmt.Errorf("failed to get all processes: %v", err)

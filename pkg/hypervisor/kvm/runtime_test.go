@@ -153,44 +153,5 @@ var _ = Describe("AdjustResources", func() {
 			Expect(capturedPid).To(Equal(virtqemudPid))
 			Expect(capturedSize).To(Equal(uint64(unix.RLIM_INFINITY)))
 		})
-
-		It("should fall back to virtqemud when a Running VMI has no QEMU process yet", func() {
-			// The phase is Running (launcher pod ready) but the domain has not
-			// been started: GetQEMUProcess finds nothing under the (mock)
-			// launcher pid and must fall back to adjusting virtqemud so the
-			// QEMU spawned later inherits the unlimited memlock rlimit.
-			vmi := libvmi.New(
-				libvmi.WithMemoryRequest("1Gi"),
-				libvmi.WithGPU(v1.GPU{Name: "gpu1"}),
-			)
-			vmi.Status.Phase = v1.Running
-
-			mockIsolationDetector.EXPECT().Detect(vmi).Return(mockIsolationResult, nil)
-			mockIsolationResult.EXPECT().Pid().Return(launcherPid)
-			mockIsolationResult.EXPECT().PPid().Return(launcherPid)
-
-			virtqemudPid := 1002
-			origListProcesses := kvm.ListProcesses
-			kvm.ListProcesses = func() ([]ps.Process, error) {
-				return []ps.Process{
-					processStub{pid: virtqemudPid, ppid: launcherPid, binary: "virtqemud"},
-				}, nil
-			}
-			DeferCleanup(func() { kvm.ListProcesses = origListProcesses })
-
-			var capturedPid int
-			var capturedSize uint64
-			origMemlock := common.SetMemlockRLimitFunc
-			common.SetMemlockRLimitFunc = func(pid int, size uint64) error {
-				capturedPid = pid
-				capturedSize = size
-				return nil
-			}
-			DeferCleanup(func() { common.SetMemlockRLimitFunc = origMemlock })
-
-			Expect(runtime.AdjustResources(vmi, config)).To(Succeed())
-			Expect(capturedPid).To(Equal(virtqemudPid))
-			Expect(capturedSize).To(Equal(uint64(unix.RLIM_INFINITY)))
-		})
 	})
 })
