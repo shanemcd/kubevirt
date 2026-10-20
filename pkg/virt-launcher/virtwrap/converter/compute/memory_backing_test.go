@@ -158,44 +158,5 @@ var _ = Describe("MemoryBackingConfigurator", func() {
 				NoSharePages: &api.NoSharePages{},
 			},
 		),
-		Entry("memlock required",
-			libvmi.New(withMemlockRequired()),
-			memfdSupported,
-			&api.MemoryBacking{
-				Locked: &api.Locked{},
-			},
-		),
-		Entry("memlock required without memfd support",
-			libvmi.New(withMemlockRequired()),
-			!memfdSupported,
-			&api.MemoryBacking{
-				Locked: &api.Locked{},
-			},
-		),
-		Entry("memlock required with hugepages",
-			libvmi.New(
-				libvmi.WithHugepages("2Mi"),
-				withMemlockRequired(),
-			),
-			memfdSupported,
-			&api.MemoryBacking{
-				HugePages: &api.HugePages{},
-				Source:    &api.MemoryBackingSource{Type: "memfd"},
-				Locked:    &api.Locked{},
-			},
-		),
 	)
 })
-
-func withMemlockRequired() libvmi.Option {
-	return func(vmi *v1.VirtualMachineInstance) {
-		if vmi.Spec.Domain.Memory == nil {
-			vmi.Spec.Domain.Memory = &v1.Memory{}
-		}
-		if vmi.Spec.Domain.Memory.ReservedOverhead == nil {
-			vmi.Spec.Domain.Memory.ReservedOverhead = &v1.ReservedOverhead{}
-		}
-		memlock := v1.MemLockRequirement(v1.MemLockRequired)
-		vmi.Spec.Domain.Memory.ReservedOverhead.MemLock = &memlock
-	}
-}

@@ -39,9 +39,8 @@ func (c MemoryBackingConfigurator) Configure(vmi *v1.VirtualMachineInstance, dom
 	hasHugepages := vmi.Spec.Domain.Memory != nil && vmi.Spec.Domain.Memory.Hugepages != nil
 	needsSharedAccess := vmitrait.IsVMIVirtiofsEnabled(vmi) || netvmispec.HasPasstBinding(vmi)
 	disableMergeableMemory := isMergeableMemoryDisabled(vmi)
-	needsLockedMemory := vmitrait.RequiresLockingMemory(vmi)
 
-	if !hasHugepages && !needsSharedAccess && !disableMergeableMemory && !needsLockedMemory {
+	if !hasHugepages && !needsSharedAccess && !disableMergeableMemory {
 		return nil
 	}
 
@@ -57,9 +56,6 @@ func (c MemoryBackingConfigurator) Configure(vmi *v1.VirtualMachineInstance, dom
 	}
 	if disableMergeableMemory {
 		mb.NoSharePages = &api.NoSharePages{}
-	}
-	if needsLockedMemory {
-		mb.Locked = &api.Locked{}
 	}
 	domain.Spec.MemoryBacking = mb
 
