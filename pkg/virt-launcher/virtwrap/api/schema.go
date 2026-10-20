@@ -591,6 +591,7 @@ type MemoryBacking struct {
 	Access       *MemoryBackingAccess `xml:"access,omitempty"`
 	Allocation   *MemoryAllocation    `xml:"allocation,omitempty"`
 	NoSharePages *NoSharePages        `xml:"nosharepages,omitempty"`
+	Locked       *Locked              `xml:"locked,omitempty"`
 }
 
 type MemoryAllocationMode string
@@ -624,6 +625,11 @@ type MemoryBackingAccess struct {
 }
 
 type NoSharePages struct {
+}
+
+// Locked requests libvirt to mlock all guest memory, making it unevictable
+// (a hard wall against NUMA demotion, unlike charge-based protections).
+type Locked struct {
 }
 
 type MemoryAddress struct {
