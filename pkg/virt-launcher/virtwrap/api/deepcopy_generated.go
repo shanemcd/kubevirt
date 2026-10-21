@@ -3022,6 +3022,11 @@ func (in *MemoryBacking) DeepCopyInto(out *MemoryBacking) {
 		*out = new(NoSharePages)
 		**out = **in
 	}
+	if in.Locked != nil {
+		in, out := &in.Locked, &out.Locked
+		*out = new(Locked)
+		**out = **in
+	}
 	return
 }
 
